@@ -12,6 +12,7 @@ type AnalysisDisplayProps = {
   analysis: AnalysisResult;
   onExplainClause: (clause: string) => void;
   onLanguageChange: (language: string) => void;
+  currentLanguage: string;
   onDownload: () => void;
   isTranslating: boolean;
   onAskQuestion: (question: string) => void;
@@ -26,6 +27,7 @@ export function AnalysisDisplay({
     analysis, 
     onExplainClause, 
     onLanguageChange, 
+    currentLanguage,
     onDownload, 
     isTranslating, 
     onAskQuestion,
@@ -36,7 +38,7 @@ export function AnalysisDisplay({
   return (
     <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row gap-2 justify-end">
-             <Select onValueChange={(value) => onLanguageChange(value)} disabled={isTranslating}>
+             <Select onValueChange={onLanguageChange} value={currentLanguage} disabled={isTranslating}>
                 <SelectTrigger className="w-full sm:w-[200px] bg-card">
                     <Languages className="mr-2" />
                     <SelectValue placeholder="Translate" />

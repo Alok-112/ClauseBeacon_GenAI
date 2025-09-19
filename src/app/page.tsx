@@ -1,12 +1,12 @@
 'use client';
-import { useState, useTransition, useRef } from 'react';
+import { useState, useTransition, useRef, useMemo } from 'react';
 import { AppHeader } from '@/components/app/header';
 import { DocumentInput } from '@/components/app/document-input';
 import { AnalysisDisplay } from '@/components/app/analysis-display';
 import { ClauseExplanationDialog } from '@/components/app/clause-explanation-dialog';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
-import { analyzeDocumentAction, explainClauseAction, translateAnalysisAction, askQuestionAction, extractTextAction } from '@/app/actions';
+import { analyzeDocumentAction, explainClauseAction, translateAnalysisAction, askQuestionAction } from '@/app/actions';
 import type { AnalysisResult, FullAnalysisResult, ChatMessage } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileText } from 'lucide-react';
@@ -23,7 +23,9 @@ export default function Home() {
   const [isAsking, startAsking] = useTransition();
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const [document, setDocument] = useState<{ text: string; dataUri: string; fileType: string } | null>(null);
+  const [documentText, setDocumentText] = useState<string | null>(null);
+  const [documentInfo, setDocumentInfo] = useState<{ dataUri: string; fileType: string } | null>(null);
+
   const [analysis, setAnalysis] = useState<FullAnalysisResult | null>(null);
   const [currentLang, setCurrentLang] = useState('English');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
@@ -36,24 +38,24 @@ export default function Home() {
   
   const reportRef = useRef<HTMLDivElement>(null);
 
-
   const handleDocumentChange = (doc: { text: string; dataUri: string; fileType: string } | null) => {
-    setDocument(doc);
+    setDocumentText(doc?.text ?? null);
+    setDocumentInfo(doc ? { dataUri: doc.dataUri, fileType: doc.fileType } : null);
     setAnalysis(null);
     setCurrentLang('English');
     setChatHistory([]);
   };
 
   const handleAnalyze = () => {
-    if (!document) return;
+    if (!documentText) return;
     setAnalysis(null);
     setCurrentLang('English');
     setChatHistory([]);
 
     startAnalyzing(async () => {
       try {
-        const result = await analyzeDocumentAction(document.text);
-        setAnalysis({ original: result });
+        const result = await analyzeDocumentAction(documentText);
+        setAnalysis({ original: result, translated: {} });
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -65,14 +67,14 @@ export default function Home() {
   };
 
   const handleAskQuestion = (question: string) => {
-    if (!document) return;
+    if (!documentText) return;
 
     const newHistory: ChatMessage[] = [...chatHistory, { role: 'user', content: question }];
     setChatHistory(newHistory);
 
     startAsking(async () => {
       try {
-        const answer = await askQuestionAction(document.text, question);
+        const answer = await askQuestionAction(documentText, question);
         setChatHistory(prev => [...prev, { role: 'assistant', content: answer }]);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
@@ -85,13 +87,23 @@ export default function Home() {
       }
     });
   };
+  
+  const displayAnalysis = useMemo(() => {
+    if (!analysis?.original) return null;
+    if (currentLang === 'English') return analysis.original;
+    return analysis.translated?.[currentLang] ?? null;
+  }, [analysis, currentLang]);
 
   const handleExplainClause = (clause: string) => {
-    if (!document) return;
+    if (!documentText || !displayAnalysis) return;
+
+    // Use original document text for explanation, but use the clause from the current display language
     setDialogState({ open: true, clause, explanation: null });
     startExplaining(async () => {
       try {
-        const explanation = await explainClauseAction(document.text, clause);
+        // We always want to find the clause in the original document text.
+        // The `clause` argument here might be translated, but the AI should handle it.
+        const explanation = await explainClauseAction(documentText, clause);
         setDialogState(prev => ({ ...prev, explanation }));
       } catch (error) {
         toast({
@@ -105,27 +117,28 @@ export default function Home() {
   };
 
   const handleLanguageChange = (language: string) => {
-    if (!analysis?.original || language === currentLang) return;
-
+    if (!analysis?.original) return;
+    
     setCurrentLang(language);
 
-    if (language === 'English') {
-        // No need to call translation, just show original
-      return;
-    }
-    
-    // If translation for this language already exists, no need to fetch again
-    if (analysis.translated && analysis.original.summary && analysis.translated.summary) {
-        // This is a rough check. A better way would be to store translations by language.
-        // For this app's scope, we assume if a translated summary exists, it's for the current lang.
-        // This logic will be re-evaluated if we support more than one target language at a time.
+    if (language === 'English' || (analysis.translated && analysis.translated[language])) {
+        // No need to fetch if it's English or already translated
         return;
     }
 
     startTranslating(async () => {
       try {
         const translatedResult = await translateAnalysisAction(analysis.original, language);
-        setAnalysis(prev => (prev ? { ...prev, translated: translatedResult } : null));
+        setAnalysis(prev => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            translated: {
+              ...prev.translated,
+              [language]: translatedResult,
+            }
+          }
+        });
       } catch (error) {
         toast({
           variant: 'destructive',
@@ -138,7 +151,7 @@ export default function Home() {
   }
 
   const handleDownload = async () => {
-    if (!analysis || !reportRef.current) return;
+    if (!displayAnalysis || !reportRef.current) return;
     setIsDownloading(true);
 
     try {
@@ -170,8 +183,7 @@ export default function Home() {
     }
   };
   
-  const displayAnalysis = (currentLang !== 'English' && analysis?.translated) ? analysis.translated : analysis?.original;
-  const isLoading = isAnalyzing || (currentLang !== 'English' && isTranslating && !analysis?.translated);
+  const isLoading = isAnalyzing || (currentLang !== 'English' && isTranslating && !displayAnalysis);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -182,7 +194,7 @@ export default function Home() {
             <DocumentInput 
               onAnalyze={handleAnalyze} 
               isAnalyzing={isAnalyzing}
-              document={document}
+              documentInfo={documentInfo}
               onDocumentChange={handleDocumentChange}
             />
           </div>
@@ -201,6 +213,7 @@ export default function Home() {
                     analysis={displayAnalysis} 
                     onExplainClause={handleExplainClause}
                     onLanguageChange={handleLanguageChange}
+                    currentLanguage={currentLang}
                     onDownload={handleDownload}
                     isTranslating={isTranslating}
                     onAskQuestion={handleAskQuestion}

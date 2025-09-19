@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useTransition, useEffect } from 'react';
+import { useRef, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,7 @@ import { extractTextAction } from '@/app/actions';
 type DocumentInputProps = {
   onAnalyze: () => void;
   isAnalyzing: boolean;
-  document: { text: string; dataUri: string; fileType: string } | null;
+  documentInfo: { dataUri: string; fileType: string } | null;
   onDocumentChange: (doc: { text: string; dataUri: string; fileType: string } | null) => void;
 };
 
@@ -21,7 +21,7 @@ const allowedFileTypes = [
   'image/jpeg',
 ];
 
-export function DocumentInput({ onAnalyze, isAnalyzing, document, onDocumentChange }: DocumentInputProps) {
+export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocumentChange }: DocumentInputProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const [isExtracting, startExtracting] = useTransition();
@@ -46,6 +46,7 @@ export function DocumentInput({ onAnalyze, isAnalyzing, document, onDocumentChan
                 description: "The text from your document has been successfully extracted.",
               });
             } catch (error) {
+              onDocumentChange(null);
               toast({
                 variant: "destructive",
                 title: "Text Extraction Failed",
@@ -63,7 +64,10 @@ export function DocumentInput({ onAnalyze, isAnalyzing, document, onDocumentChan
         });
       }
     }
-    event.target.value = '';
+    // Reset file input to allow re-uploading the same file
+    if(event.target) {
+        event.target.value = '';
+    }
   };
 
   const handleUploadClick = () => {
@@ -71,14 +75,6 @@ export function DocumentInput({ onAnalyze, isAnalyzing, document, onDocumentChan
   };
 
   const handleAnalyzeClick = () => {
-    if (!document?.text.trim()) {
-        toast({
-            variant: "destructive",
-            title: "Empty Document",
-            description: "Please upload a document before analyzing.",
-        });
-        return;
-    }
     onAnalyze();
   };
 
@@ -87,7 +83,7 @@ export function DocumentInput({ onAnalyze, isAnalyzing, document, onDocumentChan
   };
   
   const isLoading = isAnalyzing || isExtracting;
-  const hasDocument = document !== null;
+  const hasDocument = documentInfo !== null;
 
   return (
     <Card className="h-full flex flex-col shadow-lg">
@@ -98,10 +94,10 @@ export function DocumentInput({ onAnalyze, isAnalyzing, document, onDocumentChan
       <CardContent className="flex-grow flex flex-col gap-4">
         {hasDocument ? (
             <div className="flex-grow relative border rounded-md p-2 bg-secondary/20">
-                {document.fileType.startsWith('image/') ? (
-                    <img src={document.dataUri} alt="Uploaded document" className="w-full h-full object-contain" />
-                ) : document.fileType === 'application/pdf' ? (
-                    <iframe src={document.dataUri} className="w-full h-full" title="Uploaded PDF"/>
+                {documentInfo.fileType.startsWith('image/') ? (
+                    <img src={documentInfo.dataUri} alt="Uploaded document" className="w-full h-full object-contain" />
+                ) : documentInfo.fileType === 'application/pdf' ? (
+                    <iframe src={documentInfo.dataUri} className="w-full h-full" title="Uploaded PDF"/>
                 ) : (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                         <File className="w-16 h-16 mb-4"/>

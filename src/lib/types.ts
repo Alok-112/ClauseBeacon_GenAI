@@ -6,7 +6,9 @@ export type AnalysisResult = {
 
 export type FullAnalysisResult = {
   original: AnalysisResult;
-  translated?: AnalysisResult;
+  translated?: {
+    [language: string]: AnalysisResult;
+  };
 };
 
 export type ChatMessage = {
