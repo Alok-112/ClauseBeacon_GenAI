@@ -16,34 +16,39 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
     const lines = content.split('\n');
 
     const elements = lines.map((line, index) => {
-      line = line.trim();
+      const trimmedLine = line.trim();
 
-      // Headings (##)
-      if (line.startsWith('## ')) {
-        return <h2 key={index} className="text-xl font-semibold mt-4 mb-2">{line.substring(3)}</h2>;
+      // Headings
+      if (trimmedLine.startsWith('#### ')) {
+        return <h4 key={index} className="text-md font-semibold mt-2 mb-1">{trimmedLine.substring(5)}</h4>;
+      }
+      if (trimmedLine.startsWith('### ')) {
+        return <h3 key={index} className="text-lg font-semibold mt-3 mb-1">{trimmedLine.substring(4)}</h3>;
+      }
+      if (trimmedLine.startsWith('## ')) {
+        return <h2 key={index} className="text-xl font-semibold mt-4 mb-2">{trimmedLine.substring(3)}</h2>;
       }
       
       // Bullet points (* or -)
-      if (line.startsWith('* ') || line.startsWith('- ')) {
-        const itemContent = line.substring(2);
+      if (trimmedLine.startsWith('* ') || trimmedLine.startsWith('- ')) {
+        const itemContent = trimmedLine.substring(2);
         // Process bold within list items
         const boldedItem = itemContent.split('**').map((part, i) => 
-            i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+            i % 2 === 1 ? <strong key={`bold-${index}-${i}`}>{part}</strong> : part
         );
         return <li key={index} className="ml-5 list-disc">{boldedItem}</li>;
       }
       
-      // Bold text (**)
-      const parts = line.split('**');
-      const renderedParts = parts.map((part, i) => {
+      // Paragraph with bold text (**)
+      const parts = line.split('**').map((part, i) => {
         if (i % 2 === 1) {
-          return <strong key={i}>{part}</strong>;
+          return <strong key={`pbold-${index}-${i}`}>{part}</strong>;
         }
         return part;
       });
 
-      if (line) {
-        return <p key={index} className="mb-2">{renderedParts}</p>;
+      if (trimmedLine) {
+        return <p key={index} className="mb-2">{parts}</p>;
       }
 
       return null;
