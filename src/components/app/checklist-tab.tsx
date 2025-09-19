@@ -6,10 +6,23 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useState, useMemo } from 'react';
 import { TTSButton } from './tts-button';
 
-
 type ChecklistTabProps = {
   checklist: string;
 };
+
+// Simple markdown to JSX converter
+const renderMarkdown = (text: string) => {
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    const parts = text.split(boldRegex);
+
+    return parts.map((part, index) => {
+        if (index % 2 === 1) {
+            return <strong key={index}>{part}</strong>;
+        }
+        return part;
+    });
+}
+
 
 export function ChecklistTab({ checklist }: ChecklistTabProps) {
     const checklistItems = useMemo(() => checklist.split('\n').filter(item => item.trim().startsWith('- ') || item.trim().startsWith('* ')).map(item => item.trim().substring(2).trim()), [checklist]);
@@ -43,7 +56,7 @@ export function ChecklistTab({ checklist }: ChecklistTabProps) {
                         className="mt-1"
                     />
                     <label htmlFor={`checklist-item-${index}`} className={`flex-1 text-sm cursor-pointer ${checkedItems[index] ? 'line-through text-muted-foreground' : ''}`}>
-                        {item}
+                        {renderMarkdown(item)}
                     </label>
                 </div>
               ))}

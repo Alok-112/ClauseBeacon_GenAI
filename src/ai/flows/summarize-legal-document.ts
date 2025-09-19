@@ -21,7 +21,7 @@ export type SummarizeLegalDocumentInput = z.infer<
 >;
 
 const SummarizeLegalDocumentOutputSchema = z.object({
-  summary: z.string().describe('A simplified summary of the legal document.'),
+  summary: z.string().describe('A simplified summary of the legal document, using headings and bullet points.'),
 });
 export type SummarizeLegalDocumentOutput = z.infer<
   typeof SummarizeLegalDocumentOutputSchema
@@ -37,7 +37,11 @@ const prompt = ai.definePrompt({
   name: 'summarizeLegalDocumentPrompt',
   input: {schema: SummarizeLegalDocumentInputSchema},
   output: {schema: SummarizeLegalDocumentOutputSchema},
-  prompt: `Summarize the following legal document, highlighting the key points in a way that is easy to understand for a layperson:\n\n{{{documentText}}}`,
+  prompt: `Summarize the following legal document. Your summary should be easy for a layperson to understand.
+Structure your response with clear headings (using ## for titles) and bullet points (using -) to highlight the key points.
+
+Document:
+{{{documentText}}}`,
 });
 
 const summarizeLegalDocumentFlow = ai.defineFlow(
