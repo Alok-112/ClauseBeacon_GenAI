@@ -1,73 +1,80 @@
 'use client';
 
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, Loader, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { textToSpeechAction } from '@/app/actions';
 
 type TTSButtonProps = {
   textToSpeak: string;
 };
 
 export function TTSButton({ textToSpeak }: TTSButtonProps) {
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isAvailable, setIsAvailable] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      setIsAvailable(true);
-      const synth = window.speechSynthesis;
-      const onVoicesChanged = () => {
-        // Voices loaded
-      };
-      synth.addEventListener('voiceschanged', onVoicesChanged);
-      
-      const handleEnd = () => setIsSpeaking(false);
-      
-      // Cleanup function
-      return () => {
-        synth.cancel();
-        synth.removeEventListener('voiceschanged', onVoicesChanged);
-      };
-    }
+    setIsMounted(true);
+    audioRef.current = new Audio();
+    
+    const currentAudio = audioRef.current;
+    
+    const handleEnded = () => {
+        // You can add logic here if needed when audio finishes
+    };
+    
+    currentAudio.addEventListener('ended', handleEnded);
+    
+    return () => {
+      currentAudio.removeEventListener('ended', handleEnded);
+      currentAudio.pause();
+      currentAudio.src = '';
+    };
+
   }, []);
 
-  const handleSpeak = useCallback(() => {
-    if (!isAvailable) {
-        toast({
-            variant: 'destructive',
-            title: 'Text-to-Speech Not Available',
-            description: 'Your browser does not support this feature.',
-        });
-        return;
-    }
+  const handleSpeak = useCallback(async () => {
+    if (!textToSpeak || isLoading) return;
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await textToSpeechAction(textToSpeak);
+
+      if (result.error || !result.audio) {
+        throw new Error(result.error || 'Failed to generate audio.');
+      }
       
-    const synth = window.speechSynthesis;
-    if (synth.speaking) {
-      synth.cancel();
-      setIsSpeaking(false);
-      return;
-    }
+      if (audioRef.current) {
+        audioRef.current.src = result.audio;
+        audioRef.current.play();
+      }
 
-    if (textToSpeak) {
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => {
-        setIsSpeaking(false);
-        toast({
-            variant: 'destructive',
-            title: 'Speech Error',
-            description: 'Could not play the audio.',
-        });
-      };
-      synth.speak(utterance);
-      setIsSpeaking(true);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      setError(errorMessage);
+      toast({
+        variant: 'destructive',
+        title: 'Text-to-Speech Failed',
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [isAvailable, textToSpeak, toast]);
+  }, [textToSpeak, isLoading, toast]);
 
-  if (!isAvailable) {
-      return null;
+  if (!isMounted) {
+    return null;
+  }
+
+  const getIcon = () => {
+    if (isLoading) return <Loader className="h-5 w-5 animate-spin" />;
+    if (error) return <AlertCircle className="h-5 w-5 text-destructive" />;
+    return <Volume2 className="h-5 w-5" />;
   }
 
   return (
@@ -75,9 +82,10 @@ export function TTSButton({ textToSpeak }: TTSButtonProps) {
       variant="ghost"
       size="icon"
       onClick={handleSpeak}
-      aria-label={isSpeaking ? 'Stop speaking' : 'Speak text aloud'}
+      disabled={isLoading}
+      aria-label="Speak text aloud"
     >
-      {isSpeaking ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+      {getIcon()}
     </Button>
   );
 }

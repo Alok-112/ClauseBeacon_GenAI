@@ -5,6 +5,7 @@ import { identifyRiskFactors } from '@/ai/flows/identify-risk-factors';
 import { summarizeLegalDocument } from '@/ai/flows/summarize-legal-document';
 import { explainSimplifiedClause } from '@/ai/flows/explain-simplified-clause';
 import { translateDocument } from '@/ai/flows/translate-document';
+import { generateSpeech } from '@/ai/flows/generate-speech';
 import type { AnalysisResult } from '@/lib/types';
 
 export async function analyzeDocumentAction(documentText: string): Promise<AnalysisResult> {
@@ -69,4 +70,17 @@ export async function translateAnalysisAction(analysis: AnalysisResult, targetLa
         console.error('Error translating analysis:', error);
         throw new Error('Failed to translate the analysis. Please try again.');
     }
+}
+
+export async function textToSpeechAction(text: string): Promise<{ audio: string | null; error?: string }> {
+  if (!text.trim()) {
+    return { audio: null, error: 'Text cannot be empty.' };
+  }
+  try {
+    const result = await generateSpeech(text);
+    return { audio: result.media };
+  } catch (error) {
+    console.error('Error in text-to-speech action:', error);
+    return { audio: null, error: 'Failed to generate audio. Please try again.' };
+  }
 }

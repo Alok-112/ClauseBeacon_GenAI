@@ -6,3 +6,4 @@ import '@/ai/flows/translate-document.ts';
 import '@/ai/flows/generate-actionable-checklist.ts';
 import '@/ai/flows/summarize-legal-document.ts';
 import '@/ai/flows/identify-risk-factors.ts';
+import '@/ai/flows/generate-speech.ts';
