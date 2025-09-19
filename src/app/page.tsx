@@ -6,8 +6,8 @@ import { AnalysisDisplay } from '@/components/app/analysis-display';
 import { ClauseExplanationDialog } from '@/components/app/clause-explanation-dialog';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
-import { analyzeDocumentAction, explainClauseAction, translateAnalysisAction } from '@/app/actions';
-import type { AnalysisResult, FullAnalysisResult } from '@/lib/types';
+import { analyzeDocumentAction, explainClauseAction, translateAnalysisAction, askQuestionAction } from '@/app/actions';
+import type { AnalysisResult, FullAnalysisResult, ChatMessage } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileText } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -17,10 +17,12 @@ export default function Home() {
   const [isAnalyzing, startAnalyzing] = useTransition();
   const [isExplaining, startExplaining] = useTransition();
   const [isTranslating, startTranslating] = useTransition();
+  const [isAsking, startAsking] = useTransition();
 
-  const [documentText, setDocumentText] = useState('');
+  const [document, setDocument] = useState<{ text: string; dataUri: string; fileType: string } | null>(null);
   const [analysis, setAnalysis] = useState<FullAnalysisResult | null>(null);
   const [currentLang, setCurrentLang] = useState('English');
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
 
   const [dialogState, setDialogState] = useState<{
     open: boolean;
@@ -28,13 +30,22 @@ export default function Home() {
     explanation: string | null;
   }>({ open: false, clause: '', explanation: null });
 
-  const handleAnalyze = () => {
+  const handleDocumentChange = (doc: { text: string; dataUri: string; fileType: string } | null) => {
+    setDocument(doc);
     setAnalysis(null);
     setCurrentLang('English');
+    setChatHistory([]);
+  };
+
+  const handleAnalyze = () => {
+    if (!document) return;
+    setAnalysis(null);
+    setCurrentLang('English');
+    setChatHistory([]);
 
     startAnalyzing(async () => {
       try {
-        const result = await analyzeDocumentAction(documentText);
+        const result = await analyzeDocumentAction(document.text);
         setAnalysis({ original: result });
       } catch (error) {
         toast({
@@ -46,11 +57,34 @@ export default function Home() {
     });
   };
 
+  const handleAskQuestion = (question: string) => {
+    if (!document) return;
+
+    const newHistory: ChatMessage[] = [...chatHistory, { role: 'user', content: question }];
+    setChatHistory(newHistory);
+
+    startAsking(async () => {
+      try {
+        const answer = await askQuestionAction(document.text, question);
+        setChatHistory(prev => [...prev, { role: 'assistant', content: answer }]);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+        setChatHistory(prev => [...prev, { role: 'assistant', content: `Error: ${errorMessage}` }]);
+        toast({
+          variant: 'destructive',
+          title: 'Error Answering Question',
+          description: errorMessage,
+        });
+      }
+    });
+  };
+
   const handleExplainClause = (clause: string) => {
+    if (!document) return;
     setDialogState({ open: true, clause, explanation: null });
     startExplaining(async () => {
       try {
-        const explanation = await explainClauseAction(documentText, clause);
+        const explanation = await explainClauseAction(document.text, clause);
         setDialogState(prev => ({ ...prev, explanation }));
       } catch (error) {
         toast({
@@ -72,9 +106,6 @@ export default function Home() {
       return;
     }
     
-    // In a more complex app, you might cache translations.
-    // For now, we re-translate each time from the original.
-
     startTranslating(async () => {
       try {
         const translatedResult = await translateAnalysisAction(analysis.original, language);
@@ -125,8 +156,8 @@ export default function Home() {
             <DocumentInput 
               onAnalyze={handleAnalyze} 
               isAnalyzing={isAnalyzing}
-              documentText={documentText}
-              setDocumentText={setDocumentText}
+              document={document}
+              onDocumentChange={handleDocumentChange}
             />
           </div>
           <div className="h-full">
@@ -146,13 +177,16 @@ export default function Home() {
                     onLanguageChange={handleLanguageChange}
                     onDownload={handleDownload}
                     isTranslating={isTranslating}
+                    onAskQuestion={handleAskQuestion}
+                    chatHistory={chatHistory}
+                    isAsking={isAsking}
                 />
             ) : (
                 <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed bg-card/50">
                     <FileText className="h-16 w-16 text-muted-foreground mb-4" />
                     <h2 className="text-xl font-semibold">Your Analysis Awaits</h2>
                     <p className="text-muted-foreground mt-2 max-w-sm">
-                        Upload or paste a document to get started. We'll provide a summary, identify risks, and create a checklist for you.
+                        Upload a document to get started. We'll provide a summary, identify risks, and create a checklist for you.
                     </p>
                 </Card>
             )}

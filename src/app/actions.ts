@@ -7,6 +7,7 @@ import { explainSimplifiedClause } from '@/ai/flows/explain-simplified-clause';
 import { translateDocument } from '@/ai/flows/translate-document';
 import { generateSpeech } from '@/ai/flows/generate-speech';
 import { extractTextFromDocument } from '@/ai/flows/extract-text-from-document';
+import { answerDocumentQuestion } from '@/ai/flows/answer-document-question';
 import type { AnalysisResult } from '@/lib/types';
 
 export async function extractTextAction(documentDataUri: string): Promise<string> {
@@ -57,6 +58,20 @@ export async function explainClauseAction(documentText: string, clause: string):
         throw new Error('Failed to explain the clause. Please try again.');
     }
 }
+
+export async function askQuestionAction(documentText: string, question: string): Promise<string> {
+    if (!documentText.trim() || !question.trim()) {
+        throw new Error('Document text and question cannot be empty.');
+    }
+    try {
+        const result = await answerDocumentQuestion({ documentText, question });
+        return result.answer;
+    } catch (error) {
+        console.error('Error answering question:', error);
+        throw new Error('Failed to get an answer. Please try again.');
+    }
+}
+
 
 export async function translateAnalysisAction(analysis: AnalysisResult, targetLanguage: string): Promise<AnalysisResult> {
     if (!analysis || !targetLanguage) {

@@ -10,3 +10,4 @@ import '@/ai/flows/summarize-legal-document.ts';
 import '@/ai/flows/identify-risk-factors.ts';
 import '@/ai/flows/generate-speech.ts';
 import '@/ai/flows/extract-text-from-document.ts';
+import '@/ai/flows/answer-document-question.ts';
