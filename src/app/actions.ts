@@ -6,7 +6,21 @@ import { summarizeLegalDocument } from '@/ai/flows/summarize-legal-document';
 import { explainSimplifiedClause } from '@/ai/flows/explain-simplified-clause';
 import { translateDocument } from '@/ai/flows/translate-document';
 import { generateSpeech } from '@/ai/flows/generate-speech';
+import { extractTextFromDocument } from '@/ai/flows/extract-text-from-document';
 import type { AnalysisResult } from '@/lib/types';
+
+export async function extractTextAction(documentDataUri: string): Promise<string> {
+  if (!documentDataUri) {
+    throw new Error('Document data URI cannot be empty.');
+  }
+  try {
+    const result = await extractTextFromDocument({ documentDataUri });
+    return result.extractedText;
+  } catch (error) {
+    console.error('Error extracting text from document:', error);
+    throw new Error('Failed to extract text from the document. The file format may not be supported or the file may be corrupted.');
+  }
+}
 
 export async function analyzeDocumentAction(documentText: string): Promise<AnalysisResult> {
   if (!documentText.trim()) {

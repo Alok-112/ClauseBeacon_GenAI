@@ -28,14 +28,13 @@ export default function Home() {
     explanation: string | null;
   }>({ open: false, clause: '', explanation: null });
 
-  const handleAnalyze = (text: string) => {
-    setDocumentText(text);
+  const handleAnalyze = () => {
     setAnalysis(null);
     setCurrentLang('English');
 
     startAnalyzing(async () => {
       try {
-        const result = await analyzeDocumentAction(text);
+        const result = await analyzeDocumentAction(documentText);
         setAnalysis({ original: result });
       } catch (error) {
         toast({
@@ -123,7 +122,12 @@ export default function Home() {
       <main className="flex-grow container mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
           <div className="h-full">
-            <DocumentInput onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+            <DocumentInput 
+              onAnalyze={handleAnalyze} 
+              isAnalyzing={isAnalyzing}
+              documentText={documentText}
+              setDocumentText={setDocumentText}
+            />
           </div>
           <div className="h-full">
             {isLoading ? (
