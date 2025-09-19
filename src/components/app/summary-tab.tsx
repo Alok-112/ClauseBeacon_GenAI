@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { TTSButton } from './tts-button';
 import React from 'react';
@@ -49,7 +49,10 @@ export function SummaryTab({ summary }: SummaryTabProps) {
   return (
     <Card className="shadow-lg">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Document Summary</CardTitle>
+        <div className="flex-1">
+            <CardTitle>Document Summary</CardTitle>
+            <CardDescription>A concise overview of the key points in your document.</CardDescription>
+        </div>
         <TTSButton textToSpeak={summary.replace(/##/g, '')} />
       </CardHeader>
       <CardContent>

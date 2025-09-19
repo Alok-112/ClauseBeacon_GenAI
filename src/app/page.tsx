@@ -6,7 +6,7 @@ import { AnalysisDisplay } from '@/components/app/analysis-display';
 import { ClauseExplanationDialog } from '@/components/app/clause-explanation-dialog';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
-import { analyzeDocumentAction, explainClauseAction, translateAnalysisAction, askQuestionAction } from '@/app/actions';
+import { analyzeDocumentAction, explainClauseAction, translateAnalysisAction, askQuestionAction, extractTextAction } from '@/app/actions';
 import type { AnalysisResult, FullAnalysisResult, ChatMessage } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileText } from 'lucide-react';
@@ -110,9 +110,18 @@ export default function Home() {
     setCurrentLang(language);
 
     if (language === 'English') {
+        // No need to call translation, just show original
       return;
     }
     
+    // If translation for this language already exists, no need to fetch again
+    if (analysis.translated && analysis.original.summary && analysis.translated.summary) {
+        // This is a rough check. A better way would be to store translations by language.
+        // For this app's scope, we assume if a translated summary exists, it's for the current lang.
+        // This logic will be re-evaluated if we support more than one target language at a time.
+        return;
+    }
+
     startTranslating(async () => {
       try {
         const translatedResult = await translateAnalysisAction(analysis.original, language);
@@ -123,7 +132,7 @@ export default function Home() {
           title: 'Translation Failed',
           description: error instanceof Error ? error.message : 'An unknown error occurred.',
         });
-        setCurrentLang('English');
+        setCurrentLang('English'); // Revert on failure
       }
     });
   }
