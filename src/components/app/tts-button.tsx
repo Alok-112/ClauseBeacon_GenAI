@@ -30,9 +30,11 @@ export function TTSButton({ textToSpeak }: TTSButtonProps) {
     currentAudio.addEventListener('ended', handleEnded);
     
     return () => {
-      currentAudio.removeEventListener('ended', handleEnded);
-      currentAudio.pause();
-      currentAudio.src = '';
+      if (currentAudio) {
+        currentAudio.removeEventListener('ended', handleEnded);
+        currentAudio.pause();
+        currentAudio.src = '';
+      }
     };
 
   }, []);
@@ -68,7 +70,16 @@ export function TTSButton({ textToSpeak }: TTSButtonProps) {
   }, [textToSpeak, isLoading, toast]);
 
   if (!isMounted) {
-    return null;
+    return (
+        <Button
+            variant="ghost"
+            size="icon"
+            disabled={true}
+            aria-label="Speak text aloud"
+        >
+            <Volume2 className="h-5 w-5" />
+        </Button>
+    );
   }
 
   const getIcon = () => {
