@@ -1,5 +1,5 @@
 'use client';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useRef } from 'react';
 import { AppHeader } from '@/components/app/header';
 import { DocumentInput } from '@/components/app/document-input';
 import { AnalysisDisplay } from '@/components/app/analysis-display';
@@ -11,6 +11,9 @@ import type { AnalysisResult, FullAnalysisResult, ChatMessage } from '@/lib/type
 import { Skeleton } from '@/components/ui/skeleton';
 import { FileText } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { PDFReport } from '@/components/app/pdf-report';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 export default function Home() {
   const { toast } = useToast();
@@ -18,6 +21,7 @@ export default function Home() {
   const [isExplaining, startExplaining] = useTransition();
   const [isTranslating, startTranslating] = useTransition();
   const [isAsking, startAsking] = useTransition();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const [document, setDocument] = useState<{ text: string; dataUri: string; fileType: string } | null>(null);
   const [analysis, setAnalysis] = useState<FullAnalysisResult | null>(null);
@@ -29,6 +33,9 @@ export default function Home() {
     clause: string;
     explanation: string | null;
   }>({ open: false, clause: '', explanation: null });
+  
+  const reportRef = useRef<HTMLDivElement>(null);
+
 
   const handleDocumentChange = (doc: { text: string; dataUri: string; fileType: string } | null) => {
     setDocument(doc);
@@ -121,27 +128,37 @@ export default function Home() {
     });
   }
 
-  const handleDownload = () => {
-    if (!analysis) return;
+  const handleDownload = async () => {
+    if (!analysis || !reportRef.current) return;
+    setIsDownloading(true);
 
-    const currentAnalysis = (currentLang !== 'English' && analysis.translated) ? analysis.translated : analysis.original;
-    
-    const reportTitle = `Legal Document Analysis (${currentLang})\n\n`;
-    const summarySection = `SUMMARY\n-------\n${currentAnalysis.summary}\n\n`;
-    const risksSection = `POTENTIAL RISK FACTORS\n----------------------\n${currentAnalysis.riskFactors.map(r => `- ${r}`).join('\n')}\n\n`;
-    const checklistSection = `ACTIONABLE CHECKLIST\n--------------------\n${currentAnalysis.checklist}`;
+    try {
+        const canvas = await html2canvas(reportRef.current, {
+            scale: 2, 
+            useCORS: true,
+            backgroundColor: null,
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+            orientation: 'p',
+            unit: 'px',
+            format: [canvas.width, canvas.height],
+        });
 
-    const reportContent = reportTitle + summarySection + risksSection + checklistSection;
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('clause-beacon-report.pdf');
 
-    const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'clause-beacon-report.txt');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    } catch (error) {
+        toast({
+            variant: "destructive",
+            title: "Download Failed",
+            description: "Could not generate the PDF report. Please try again."
+        });
+        console.error("Error generating PDF:", error);
+    } finally {
+        setIsDownloading(false);
+    }
   };
   
   const displayAnalysis = (currentLang !== 'English' && analysis?.translated) ? analysis.translated : analysis?.original;
@@ -180,6 +197,7 @@ export default function Home() {
                     onAskQuestion={handleAskQuestion}
                     chatHistory={chatHistory}
                     isAsking={isAsking}
+                    isDownloading={isDownloading}
                 />
             ) : (
                 <Card className="h-full flex flex-col items-center justify-center text-center p-8 border-dashed bg-card/50">
@@ -201,6 +219,16 @@ export default function Home() {
         explanation={dialogState.explanation}
         isLoading={isExplaining}
       />
+      {/* Hidden report for PDF generation */}
+      <div className="absolute -z-10 -left-[9999px] top-0 w-[800px]">
+          {displayAnalysis && (
+            <PDFReport 
+                ref={reportRef}
+                analysis={displayAnalysis} 
+                language={currentLang}
+            />
+          )}
+      </div>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, Languages } from 'lucide-react';
+import { Download, Languages, Loader } from 'lucide-react';
 import type { AnalysisResult, ChatMessage } from '@/lib/types';
 import { SummaryTab } from './summary-tab';
 import { RisksTab } from './risks-tab';
@@ -17,6 +17,7 @@ type AnalysisDisplayProps = {
   onAskQuestion: (question: string) => void;
   chatHistory: ChatMessage[];
   isAsking: boolean;
+  isDownloading: boolean;
 };
 
 const supportedLanguages = ["Spanish", "French", "German", "Japanese", "Mandarin Chinese", "Italian", "Portuguese", "Hindi", "Bengali", "Telugu", "Marathi", "Tamil", "Urdu"];
@@ -29,7 +30,8 @@ export function AnalysisDisplay({
     isTranslating, 
     onAskQuestion,
     chatHistory,
-    isAsking
+    isAsking,
+    isDownloading
 }: AnalysisDisplayProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -46,9 +48,9 @@ export function AnalysisDisplay({
                     ))}
                 </SelectContent>
             </Select>
-            <Button onClick={onDownload} className="w-full sm:w-auto">
-                <Download className="mr-2"/>
-                Download Report
+            <Button onClick={onDownload} className="w-full sm:w-auto" disabled={isDownloading}>
+                {isDownloading ? <Loader className="mr-2 animate-spin" /> : <Download className="mr-2"/>}
+                {isDownloading ? 'Generating PDF...' : 'Download Report'}
             </Button>
         </div>
         <Tabs defaultValue="summary" className="w-full">
