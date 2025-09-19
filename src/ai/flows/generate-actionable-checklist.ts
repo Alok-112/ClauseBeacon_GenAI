@@ -1,4 +1,3 @@
-// src/ai/flows/generate-actionable-checklist.ts
 'use server';
 /**
  * @fileOverview Generates an actionable checklist based on a legal document.
@@ -20,7 +19,7 @@ export type GenerateActionableChecklistInput = z.infer<
 >;
 
 const GenerateActionableChecklistOutputSchema = z.object({
-  checklist: z.string().describe('A checklist of actionable items.'),
+  checklist: z.string().describe('A checklist of actionable items in markdown format. Each item should start with "- ".'),
 });
 
 export type GenerateActionableChecklistOutput = z.infer<
@@ -39,7 +38,13 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateActionableChecklistOutputSchema},
   prompt: `You are an AI assistant designed to generate actionable checklists from legal documents.
 
-  Based on the following legal document text, create a checklist of actions that the user should consider:
+  Based on the following legal document text, create a checklist of actions that the user should consider.
+  
+  Format each item as a markdown list item, starting with "- ". For example:
+  - Review the termination clause carefully.
+  - Clarify the payment schedule with the other party.
+  
+  Do not include any other text or headings, only the list items.
 
   Document Text:
   {{documentText}}

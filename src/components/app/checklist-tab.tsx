@@ -11,7 +11,10 @@ type ChecklistTabProps = {
 };
 
 export function ChecklistTab({ checklist }: ChecklistTabProps) {
-    const checklistItems = useMemo(() => checklist.split('\n').filter(item => item.trim().startsWith('- ') || item.trim().startsWith('* ')).map(item => item.trim().substring(2).trim()), [checklist]);
+    const checklistItems = useMemo(() => {
+        if (!checklist) return [];
+        return checklist.split('\n').filter(item => item.trim().startsWith('- ') || item.trim().startsWith('* ')).map(item => item.trim().substring(2).trim())
+    }, [checklist]);
     const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({});
 
     const handleCheckChange = (index: number) => {

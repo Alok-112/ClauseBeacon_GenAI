@@ -1,6 +1,7 @@
 import React from 'react';
 import { FileSearch, AlertTriangle, CheckSquare } from 'lucide-react';
 import type { AnalysisResult } from '@/lib/types';
+import { MarkdownRenderer } from './markdown-renderer';
 
 type PDFReportProps = {
   analysis: AnalysisResult;
@@ -10,7 +11,12 @@ type PDFReportProps = {
 export const PDFReport = React.forwardRef<HTMLDivElement, PDFReportProps>(
     ({ analysis, language }, ref) => {
         const { summary, riskFactors, checklist } = analysis;
-        const checklistItems = checklist.split('\n').filter(item => item.trim().startsWith('- ') || item.trim().startsWith('* ')).map(item => item.trim().substring(2).trim());
+        
+        const checklistItems = checklist
+            .split('\n')
+            .map(item => item.trim())
+            .filter(item => item.startsWith('- ') || item.startsWith('* '))
+            .map(item => item.substring(2).trim());
 
         return (
             <div ref={ref} className="bg-white text-gray-800 p-10 font-sans">
@@ -33,7 +39,9 @@ export const PDFReport = React.forwardRef<HTMLDivElement, PDFReportProps>(
                         <h2 className="text-2xl font-semibold text-gray-800 border-b-2 border-blue-500 pb-2 mb-4">
                             Executive Summary
                         </h2>
-                        <p className="text-base leading-relaxed whitespace-pre-wrap">{summary}</p>
+                        <div className="text-base leading-relaxed whitespace-pre-wrap">
+                           <MarkdownRenderer content={summary} />
+                        </div>
                     </section>
 
                     <section className="mb-10">
@@ -63,7 +71,7 @@ export const PDFReport = React.forwardRef<HTMLDivElement, PDFReportProps>(
                                 {checklistItems.map((item, index) => (
                                     <div key={index} className="flex items-start gap-3">
                                         <CheckSquare className="h-5 w-5 text-green-600 flex-shrink-0 mt-1" />
-                                        <p className="text-base flex-1">{item}</p>
+                                        <p className="text-base flex-1"><MarkdownRenderer content={item} /></p>
                                     </div>
                                 ))}
                             </div>
