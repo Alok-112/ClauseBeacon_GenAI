@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
+import { TTSButton } from './tts-button';
 
 type ClauseExplanationDialogProps = {
   open: boolean;
@@ -38,7 +39,10 @@ export function ClauseExplanationDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="py-4">
-            <h3 className="font-semibold mb-2">Simplified Version:</h3>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-semibold">Simplified Version:</h3>
+              {explanation && !isLoading && <TTSButton textToSpeak={explanation} />}
+            </div>
             <ScrollArea className="h-[200px] rounded-md border p-4 bg-secondary/30">
                 {isLoading && !explanation ? (
                     <div className="space-y-2">

@@ -44,7 +44,7 @@ const prompt = ai.definePrompt({
 
 You will be given a legal document and a user's question. Your task is to answer the question based *only* on the information provided in the document.
 
-- If the user asks a greeting like "hello", respond with: "Welcome to ClauseBeacon! I'm ready to help you analyze your legal document. How can I assist you today?"
+- If the user asks a greeting like "hello", "hi", or "greetings", respond with: "Welcome to ClauseBeacon! I'm ready to help you analyze your legal document. How can I assist you today?"
 - For any other question, analyze the document to find the answer.
 - If the answer cannot be found in the document, state that clearly. For example: "I couldn't find the answer to your question in the provided document."
 - Keep your answers concise and clear.
@@ -67,6 +67,14 @@ const answerDocumentQuestionFlow = ai.defineFlow(
     outputSchema: AnswerDocumentQuestionOutputSchema,
   },
   async input => {
+    // Handle greetings explicitly, as the model might not always follow the prompt for simple inputs.
+    const lowercasedQuestion = input.question.toLowerCase().trim();
+    if (['hello', 'hi', 'greetings'].includes(lowercasedQuestion)) {
+      return {
+        answer:
+          "Welcome to ClauseBeacon! I'm ready to help you analyze your legal document. How can I assist you today?",
+      };
+    }
     const {output} = await prompt(input);
     return output!;
   }

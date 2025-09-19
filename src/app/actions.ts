@@ -2,32 +2,25 @@
 
 import {
   generateActionableChecklist,
-  type GenerateActionableChecklistInput,
 } from '@/ai/flows/generate-actionable-checklist';
 import {
   identifyRiskFactors,
-  type IdentifyRiskFactorsInput,
 } from '@/ai/flows/identify-risk-factors';
 import {
   summarizeLegalDocument,
-  type SummarizeLegalDocumentInput,
 } from '@/ai/flows/summarize-legal-document';
 import {
   explainSimplifiedClause,
-  type ExplainSimplifiedClauseInput,
 } from '@/ai/flows/explain-simplified-clause';
 import {
   translateDocument,
-  type TranslateDocumentInput,
 } from '@/ai/flows/translate-document';
 import {generateSpeech} from '@/ai/flows/generate-speech';
 import {
   extractTextFromDocument,
-  type ExtractTextFromDocumentInput,
 } from '@/ai/flows/extract-text-from-document';
 import {
   answerDocumentQuestion,
-  type AnswerDocumentQuestionInput,
 } from '@/ai/flows/answer-document-question';
 import type {AnalysisResult} from '@/lib/types';
 
@@ -113,21 +106,30 @@ export async function translateAnalysisAction(
   if (!analysis || !targetLanguage) {
     throw new Error('Analysis and target language are required.');
   }
-  try {
-    const translateText = async (text: string) => {
-      if (!text) return '';
+
+  const translateText = async (text: string | null | undefined): Promise<string> => {
+    if (!text) return '';
+    try {
       const result = await translateDocument({
         documentText: text,
         targetLanguage,
       });
       return result.translatedText;
-    };
+    } catch (error) {
+       console.error(`Error translating text to ${targetLanguage}:`, error);
+       // Return original text if translation fails for a single field
+       return text;
+    }
+  };
 
-    const translateArray = async (items: string[]) => {
-      if (!items || items.length === 0) return [];
-      return Promise.all(items.map(item => translateText(item)));
-    };
+  const translateArray = async (items: string[]): Promise<string[]> => {
+    if (!items || items.length === 0) return [];
+    // Promise.all is good, but if one fails, all fail. We want partial success.
+    const translatedItems = await Promise.all(items.map(item => translateText(item)));
+    return translatedItems;
+  };
 
+  try {
     const [translatedSummary, translatedRisks, translatedChecklist] =
       await Promise.all([
         translateText(analysis.summary),
@@ -142,9 +144,10 @@ export async function translateAnalysisAction(
     };
   } catch (error) {
     console.error('Error translating analysis:', error);
-    throw new Error('Failed to translate the analysis. Please try again.');
+    throw new Error(`Failed to translate the analysis to ${targetLanguage}. Please try again.`);
   }
 }
+
 
 export async function textToSpeechAction(
   text: string
