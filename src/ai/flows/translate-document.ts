@@ -30,7 +30,12 @@ const prompt = ai.definePrompt({
   name: 'translateDocumentPrompt',
   input: {schema: TranslateDocumentInputSchema},
   output: {schema: TranslateDocumentOutputSchema},
-  prompt: `You are a professional translator specializing in legal documents. Please translate the following legal document into {{{targetLanguage}}}.\n\nDocument:\n{{{documentText}}}`,
+  prompt: `You are a professional translator specializing in legal documents and an expert in markdown formatting. Your task is to translate the following text into {{{targetLanguage}}}.
+
+It is crucial that you preserve the original markdown formatting. Do not alter the structure of headings (e.g., '##'), bullet points (e.g., '*'), or bold text (e.g., '**'). The translated text must have the exact same markdown structure as the original.
+
+Original Document:
+{{{documentText}}}`,
 });
 
 const translateDocumentFlow = ai.defineFlow(
