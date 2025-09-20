@@ -3,7 +3,7 @@ import { useRef, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Upload, Sparkles, Loader, File, Trash2, CheckCircle } from 'lucide-react';
+import { Upload, Sparkles, Loader, File, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { extractTextAction } from '@/app/actions';
 
@@ -28,11 +28,19 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (allowedFileTypes.includes(file.type)) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const dataUri = e.target?.result as string;
-          startExtracting(async () => {
+      if (!allowedFileTypes.includes(file.type)) {
+        toast.error("Invalid File Type", {
+            description: "Please upload a .txt, .pdf, .png, or .jpeg file.",
+        });
+        return;
+      }
+      
+      startExtracting(async () => {
+        try {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = async (e) => {
+            const dataUri = e.target?.result as string;
             try {
               const extractedText = await extractTextAction(dataUri);
               onDocumentChange({
@@ -41,22 +49,22 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
                 fileType: file.type,
               });
               toast.success("Document Uploaded", {
-                description: "The text from your document has been successfully extracted.",
+                description: "The text has been successfully extracted.",
               });
             } catch (error) {
-              onDocumentChange(null);
-              toast.error("Text Extraction Failed", {
+               onDocumentChange(null);
+               toast.error("Text Extraction Failed", {
                 description: error instanceof Error ? error.message : "An unknown error occurred.",
               });
             }
+          };
+        } catch (error) {
+          onDocumentChange(null);
+          toast.error("File Processing Error", {
+            description: "Could not read the selected file.",
           });
-        };
-        reader.readAsDataURL(file);
-      } else {
-        toast.error("Invalid File Type", {
-            description: "Please upload a .txt, .pdf, .png, or .jpeg file.",
-        });
-      }
+        }
+      });
     }
     // Reset file input to allow re-uploading the same file
     if(event.target) {
