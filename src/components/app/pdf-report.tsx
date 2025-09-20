@@ -12,11 +12,12 @@ export const PDFReport = React.forwardRef<HTMLDivElement, PDFReportProps>(
     ({ analysis, language }, ref) => {
         const { summary, riskFactors, checklist } = analysis;
         
+        // This is a more robust way to parse the checklist, similar to the checklist-tab component.
         const checklistItems = checklist
-            .split('\n')
+            .split(/[\n]+/)
+            .flatMap(line => line.split(/\s*(?:-|\*)\s+/))
             .map(item => item.trim())
-            .filter(item => item.startsWith('- ') || item.startsWith('* '))
-            .map(item => item.substring(2).trim());
+            .filter(item => item.length > 0);
 
         return (
             <div ref={ref} className="bg-white text-gray-800 p-10 font-sans">
