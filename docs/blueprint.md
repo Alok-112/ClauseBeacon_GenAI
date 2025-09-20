@@ -1,4 +1,4 @@
-# **App Name**: Legalese Decoder
+# **App Name**: Clause Beacon
 
 ## Core Features:
 
