@@ -1,5 +1,5 @@
 'use client';
-import { useState, useTransition, useRef, useMemo } from 'react';
+import { useState, useTransition, useRef, useMemo, useEffect } from 'react';
 import { AppHeader } from '@/components/app/header';
 import { DocumentInput } from '@/components/app/document-input';
 import { AnalysisDisplay } from '@/components/app/analysis-display';
@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/card';
 import { PDFReport } from '@/components/app/pdf-report';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { SplashScreen } from '@/components/app/splash-screen';
 
 export default function Home() {
   const { toast } = useToast();
@@ -22,6 +23,7 @@ export default function Home() {
   const [isTranslating, startTranslating] = useTransition();
   const [isAsking, startAsking] = useTransition();
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isAppLoading, setIsAppLoading] = useState(true);
 
   const [documentText, setDocumentText] = useState<string | null>(null);
   const [documentInfo, setDocumentInfo] = useState<{ dataUri: string; fileType: string } | null>(null);
@@ -37,6 +39,14 @@ export default function Home() {
   }>({ open: false, clause: '', explanation: null });
   
   const reportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Simulate app loading
+    const timer = setTimeout(() => {
+      setIsAppLoading(false);
+    }, 2000); 
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleDocumentChange = (doc: { text: string; dataUri: string; fileType: string } | null) => {
     setDocumentText(doc?.text ?? null);
@@ -184,6 +194,10 @@ export default function Home() {
   };
   
   const isLoading = isAnalyzing || (currentLang !== 'English' && isTranslating && !displayAnalysis);
+
+  if (isAppLoading) {
+    return <SplashScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
