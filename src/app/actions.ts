@@ -35,8 +35,12 @@ export async function extractTextAction(
     return result.extractedText;
   } catch (error) {
     console.error('Error extracting text from document:', error);
+    // Pass the specific AI error message to the frontend if available
+    if (error instanceof Error && error.message.includes("The AI model could not find any readable text")) {
+      throw error;
+    }
     throw new Error(
-      'Failed to extract text from the document. The file format may not be supported or the file may be corrupted.'
+      'Failed to extract text from the document. The file format may be unsupported or the file may be corrupted.'
     );
   }
 }

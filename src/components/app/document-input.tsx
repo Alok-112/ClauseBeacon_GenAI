@@ -54,7 +54,7 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
             } catch (error) {
                onDocumentChange(null);
                toast.error("Text Extraction Failed", {
-                description: error instanceof Error ? error.message : "An unknown error occurred.",
+                description: error instanceof Error ? error.message : "An unknown error occurred while processing the document.",
               });
             }
           };

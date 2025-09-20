@@ -23,7 +23,7 @@ export type ExtractTextFromDocumentInput = z.infer<
 >;
 
 const ExtractTextFromDocumentOutputSchema = z.object({
-  extractedText: z.string().describe('The extracted text from the document.'),
+  extractedText: z.string().describe('The extracted text from the document. If no text can be extracted, this should be empty.'),
 });
 export type ExtractTextFromDocumentOutput = z.infer<
   typeof ExtractTextFromDocumentOutputSchema
@@ -39,7 +39,13 @@ const prompt = ai.definePrompt({
   name: 'extractTextFromDocumentPrompt',
   input: {schema: ExtractTextFromDocumentInputSchema},
   output: {schema: ExtractTextFromDocumentOutputSchema},
-  prompt: `You are an expert at extracting text from documents. Extract all text content from the provided document. If the document appears to be a legal contract, preserve the formatting and structure as much as possible.
+  prompt: `You are an expert Optical Character Recognition (OCR) engine. Your task is to extract all text content from the provided document.
+
+- Analyze the document carefully.
+- Extract every piece of readable text.
+- If the document is a legal contract, make a best effort to preserve the original formatting, including paragraphs, spacing, and structure.
+- If the document is of poor quality, try to decipher the text as accurately as possible.
+- If the document contains no readable text at all (e.g., it's a blank image or completely unintelligible), return an empty string for the extractedText field.
 
 Document:
 {{media url=documentDataUri}}`,
@@ -53,6 +59,11 @@ const extractTextFromDocumentFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    
+    if (!output?.extractedText?.trim()) {
+        throw new Error("The AI model could not find any readable text in the document. It might be blank, corrupted, or too blurry.");
+    }
+    
+    return output;
   }
 );
