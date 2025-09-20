@@ -48,7 +48,8 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
       });
 
       if (trimmedLine) {
-        return <p key={index} className="mb-2">{parts}</p>;
+        // Use a div instead of a p to avoid nesting errors
+        return <div key={index} className="mb-2">{parts}</div>;
       }
 
       return null;
@@ -79,5 +80,5 @@ export const MarkdownRenderer = ({ content }: MarkdownRendererProps) => {
     return groupedElements;
   };
 
-  return <>{renderContent()}</>;
+  return <div className="prose prose-sm max-w-none">{renderContent()}</div>;
 };

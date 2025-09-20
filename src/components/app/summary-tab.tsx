@@ -21,9 +21,7 @@ export function SummaryTab({ summary }: SummaryTabProps) {
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] lg:h-[500px] pr-4">
-          <div className="prose prose-sm max-w-none">
-            <MarkdownRenderer content={summary} />
-          </div>
+          <MarkdownRenderer content={summary} />
         </ScrollArea>
       </CardContent>
     </Card>

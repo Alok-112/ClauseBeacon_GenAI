@@ -39,7 +39,7 @@ export const PDFReport = React.forwardRef<HTMLDivElement, PDFReportProps>(
                         <h2 className="text-2xl font-semibold text-gray-800 border-b-2 border-blue-500 pb-2 mb-4">
                             Executive Summary
                         </h2>
-                        <div className="text-base leading-relaxed whitespace-pre-wrap">
+                        <div className="text-base leading-relaxed">
                            <MarkdownRenderer content={summary} />
                         </div>
                     </section>
@@ -53,7 +53,7 @@ export const PDFReport = React.forwardRef<HTMLDivElement, PDFReportProps>(
                                 {riskFactors.map((risk, index) => (
                                     <div key={index} className="p-4 border-l-4 border-red-500 bg-red-50 rounded-r-lg flex items-start gap-4">
                                         <AlertTriangle className="h-6 w-6 text-red-600 flex-shrink-0 mt-1" />
-                                        <p className="text-base">{risk}</p>
+                                        <div className="text-base flex-1"><MarkdownRenderer content={risk} /></div>
                                     </div>
                                 ))}
                             </div>
@@ -71,7 +71,7 @@ export const PDFReport = React.forwardRef<HTMLDivElement, PDFReportProps>(
                                 {checklistItems.map((item, index) => (
                                     <div key={index} className="flex items-start gap-3">
                                         <CheckSquare className="h-5 w-5 text-green-600 flex-shrink-0 mt-1" />
-                                        <p className="text-base flex-1"><MarkdownRenderer content={item} /></p>
+                                        <div className="text-base flex-1"><MarkdownRenderer content={item} /></div>
                                     </div>
                                 ))}
                             </div>
