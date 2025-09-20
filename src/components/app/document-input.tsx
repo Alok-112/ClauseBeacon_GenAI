@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Upload, Sparkles, Loader, File, Trash2, CheckCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { extractTextAction } from '@/app/actions';
 
 type DocumentInputProps = {
@@ -23,7 +23,6 @@ const allowedFileTypes = [
 
 export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocumentChange }: DocumentInputProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
   const [isExtracting, startExtracting] = useTransition();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,15 +40,12 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
                 dataUri: dataUri,
                 fileType: file.type,
               });
-              toast({
-                title: "Document Uploaded",
+              toast.success("Document Uploaded", {
                 description: "The text from your document has been successfully extracted.",
               });
             } catch (error) {
               onDocumentChange(null);
-              toast({
-                variant: "destructive",
-                title: "Text Extraction Failed",
+              toast.error("Text Extraction Failed", {
                 description: error instanceof Error ? error.message : "An unknown error occurred.",
               });
             }
@@ -57,9 +53,7 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
         };
         reader.readAsDataURL(file);
       } else {
-        toast({
-            variant: "destructive",
-            title: "Invalid File Type",
+        toast.error("Invalid File Type", {
             description: "Please upload a .txt, .pdf, .png, or .jpeg file.",
         });
       }
@@ -80,8 +74,7 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
 
   const handleRemoveDocument = () => {
     onDocumentChange(null);
-    toast({
-        title: "Document Removed",
+    toast.success("Document Removed", {
         description: "The document has been cleared from the application.",
     });
   };

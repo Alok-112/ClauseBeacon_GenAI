@@ -3,7 +3,7 @@
 import { Volume2, Loader, AlertCircle, Play, Pause, StopCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { textToSpeechAction } from '@/app/actions';
 
 type TTSButtonProps = {
@@ -16,7 +16,6 @@ export function TTSButton({ textToSpeak }: TTSButtonProps) {
   const [audioState, setAudioState] = useState<AudioState>('idle');
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const { toast } = useToast();
   
   // To ensure we don't request the same audio twice
   const lastTextSpoken = useRef<string | null>(null);
@@ -94,13 +93,11 @@ export function TTSButton({ textToSpeak }: TTSButtonProps) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
       setError(errorMessage);
       setAudioState('error');
-      toast({
-        variant: 'destructive',
-        title: 'Text-to-Speech Failed',
+      toast.error('Text-to-Speech Failed', {
         description: errorMessage,
       });
     }
-  }, [textToSpeak, audioState, toast]);
+  }, [textToSpeak, audioState]);
 
   const handleStop = () => {
     if (audioRef.current) {

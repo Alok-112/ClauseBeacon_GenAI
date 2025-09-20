@@ -4,8 +4,8 @@ import { AppHeader } from '@/components/app/header';
 import { DocumentInput } from '@/components/app/document-input';
 import { AnalysisDisplay } from '@/components/app/analysis-display';
 import { ClauseExplanationDialog } from '@/components/app/clause-explanation-dialog';
-import { Toaster } from '@/components/ui/toaster';
-import { useToast } from '@/hooks/use-toast';
+import { Toaster } from 'sonner';
+import { toast } from 'sonner';
 import { analyzeDocumentAction, explainClauseAction, translateAnalysisAction, askQuestionAction } from '@/app/actions';
 import type { AnalysisResult, FullAnalysisResult, ChatMessage } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,7 +17,6 @@ import html2canvas from 'html2canvas';
 import { SplashScreen } from '@/components/app/splash-screen';
 
 export default function Home() {
-  const { toast } = useToast();
   const [isAnalyzing, startAnalyzing] = useTransition();
   const [isExplaining, startExplaining] = useTransition();
   const [isTranslating, startTranslating] = useTransition();
@@ -67,9 +66,7 @@ export default function Home() {
         const result = await analyzeDocumentAction(documentText);
         setAnalysis({ original: result, translated: {} });
       } catch (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Analysis Failed',
+        toast.error('Analysis Failed', {
           description: error instanceof Error ? error.message : 'An unknown error occurred.',
         });
       }
@@ -89,9 +86,7 @@ export default function Home() {
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
         setChatHistory(prev => [...prev, { role: 'assistant', content: `Error: ${errorMessage}` }]);
-        toast({
-          variant: 'destructive',
-          title: 'Error Answering Question',
+        toast.error('Error Answering Question', {
           description: errorMessage,
         });
       }
@@ -115,9 +110,7 @@ export default function Home() {
         const explanation = await explainClauseAction(documentText, clause);
         setDialogState(prev => ({ ...prev, explanation }));
       } catch (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Explanation Failed',
+        toast.error('Explanation Failed', {
           description: error instanceof Error ? error.message : 'An unknown error occurred.',
         });
         setDialogState(prev => ({ ...prev, open: false }));
@@ -149,9 +142,7 @@ export default function Home() {
           }
         });
       } catch (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Translation Failed',
+        toast.error('Translation Failed', {
           description: error instanceof Error ? error.message : 'An unknown error occurred.',
         });
         setCurrentLang('English'); // Revert on failure
@@ -181,9 +172,7 @@ export default function Home() {
         pdf.save('clause-beacon-report.pdf');
 
     } catch (error) {
-        toast({
-            variant: "destructive",
-            title: "Download Failed",
+        toast.error("Download Failed", {
             description: "Could not generate the PDF report. Please try again."
         });
         console.error("Error generating PDF:", error);
@@ -247,7 +236,7 @@ export default function Home() {
           </div>
         </div>
       </main>
-      <Toaster />
+      <Toaster position="top-center" richColors />
       <ClauseExplanationDialog
         open={dialogState.open}
         onOpenChange={(open) => setDialogState(prev => ({ ...prev, open }))}
