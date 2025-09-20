@@ -1,4 +1,4 @@
-import { FileSearch } from 'lucide-react';
+import { Gem } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
 
 export function AppHeader() {
@@ -6,7 +6,9 @@ export function AppHeader() {
     <header className="bg-card border-b shadow-sm">
       <div className="container mx-auto flex items-center justify-between gap-3 p-4">
         <div className="flex items-center gap-2">
-          <FileSearch className="h-7 w-7 text-primary" />
+          <div className="relative flex items-center justify-center">
+            <Gem className="h-7 w-7 text-primary animate-glow" />
+          </div>
           <h1 className="text-xl md:text-2xl font-bold text-foreground font-headline">
             ClauseBeacon
           </h1>
