@@ -13,11 +13,16 @@ type ChecklistTabProps = {
 export function ChecklistTab({ checklist }: ChecklistTabProps) {
     const checklistItems = useMemo(() => {
         if (!checklist) return [];
-        // Robustly split by newline and filter for list items
-        return checklist.split(/[\n]+/)
+        // This is a more robust way to parse the checklist.
+        // 1. It splits by newline characters, which is the ideal case.
+        // 2. Then, for each line, it splits again by "- " or "* ", which handles cases
+        //    where the AI might have returned all items on a single line.
+        // 3. It filters out any empty strings that might result from the splits.
+        return checklist
+            .split(/[\n]+/)
+            .flatMap(line => line.split(/\s*(?:-|\*)\s+/))
             .map(item => item.trim())
-            .filter(item => item.startsWith('- ') || item.startsWith('* '))
-            .map(item => item.substring(2).trim());
+            .filter(item => item.length > 0);
     }, [checklist]);
 
     const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({});
