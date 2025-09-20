@@ -58,10 +58,16 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
               });
             }
           };
+          reader.onerror = () => {
+            onDocumentChange(null);
+            toast.error("File Reading Error", {
+                description: "Could not read the selected file.",
+            });
+          }
         } catch (error) {
           onDocumentChange(null);
           toast.error("File Processing Error", {
-            description: "Could not read the selected file.",
+            description: "An unexpected error occurred.",
           });
         }
       });

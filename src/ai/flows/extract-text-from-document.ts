@@ -60,7 +60,7 @@ const extractTextFromDocumentFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
     
-    if (!output?.extractedText?.trim()) {
+    if (!output || typeof output.extractedText !== 'string' || !output.extractedText.trim()) {
         throw new Error("The AI model could not find any readable text in the document. It might be blank, corrupted, or too blurry.");
     }
     
