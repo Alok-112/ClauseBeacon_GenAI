@@ -20,6 +20,7 @@ const allowedFileTypes = [
   'image/png',
   'image/jpeg',
   'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // for .docx
 ];
 
 export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocumentChange }: DocumentInputProps) {
@@ -31,7 +32,7 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
     if (file) {
       if (!allowedFileTypes.includes(file.type)) {
         toast.error("Invalid File Type", {
-            description: "Please upload a .txt, .pdf, .png, .jpeg, or .doc file.",
+            description: "Please upload a .txt, .pdf, .png, .jpeg, .doc, or .docx file.",
         });
         return;
       }
@@ -101,7 +102,7 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
     <Card className="h-full flex flex-col shadow-lg">
       <CardHeader>
         <CardTitle>Your Document</CardTitle>
-        <CardDescription>Upload a .txt, .pdf, .png, .jpeg, or .doc file.</CardDescription>
+        <CardDescription>Upload a .txt, .pdf, .png, .jpeg, .doc, or .docx file.</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow flex flex-col gap-4">
         {hasDocument ? (
@@ -113,7 +114,7 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
                 ) : (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                         <File className="w-16 h-16 mb-4"/>
-                        <p>Text or .doc file uploaded.</p>
+                        <p>Text, .doc or .docx file uploaded.</p>
                         <p className="text-sm">(Viewer is not available for this file type)</p>
                     </div>
                 )}
