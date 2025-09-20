@@ -40,7 +40,7 @@ export function AnalysisDisplay({
         <div className="flex flex-col sm:flex-row gap-2 justify-end">
              <Select onValueChange={onLanguageChange} value={currentLanguage} disabled={isTranslating}>
                 <SelectTrigger className="w-full sm:w-[200px] bg-card">
-                    <Languages className="mr-2" />
+                    <Languages className="mr-2 h-4 w-4" />
                     <SelectValue placeholder="Translate" />
                 </SelectTrigger>
                 <SelectContent>
@@ -51,12 +51,12 @@ export function AnalysisDisplay({
                 </SelectContent>
             </Select>
             <Button onClick={onDownload} className="w-full sm:w-auto" disabled={isDownloading}>
-                {isDownloading ? <Loader className="mr-2 animate-spin" /> : <Download className="mr-2"/>}
+                {isDownloading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4"/>}
                 {isDownloading ? 'Generating PDF...' : 'Download Report'}
             </Button>
         </div>
         <Tabs defaultValue="summary" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto sm:h-10">
                 <TabsTrigger value="summary">Summary</TabsTrigger>
                 <TabsTrigger value="risks">Risk Factors</TabsTrigger>
                 <TabsTrigger value="checklist">Checklist</TabsTrigger>

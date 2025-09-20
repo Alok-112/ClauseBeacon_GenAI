@@ -190,7 +190,7 @@ export default function Home() {
       <AppHeader />
       <main className="flex-grow container mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
-          <div className="h-full">
+          <div className="h-full flex flex-col">
             <DocumentInput 
               onAnalyze={handleAnalyze} 
               isAnalyzing={isAnalyzing}
@@ -198,7 +198,7 @@ export default function Home() {
               onDocumentChange={handleDocumentChange}
             />
           </div>
-          <div className="h-full">
+          <div className="h-full flex flex-col">
             {isLoading ? (
               <Card className="h-full p-6 flex flex-col gap-4">
                   <Skeleton className="h-8 w-1/2" />
