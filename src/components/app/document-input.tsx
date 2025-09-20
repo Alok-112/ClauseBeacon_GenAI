@@ -3,7 +3,7 @@ import { useRef, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Upload, Sparkles, Loader, File, Trash2 } from 'lucide-react';
+import { Upload, Sparkles, Loader, File, Trash2, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { extractTextAction } from '@/app/actions';
 
