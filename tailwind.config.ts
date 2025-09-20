@@ -91,12 +91,23 @@ export default {
         'blink': {
             '0%, 100%': { 'border-color': 'transparent' },
             '50%': { 'border-color': 'hsl(var(--primary))' },
+        },
+        'glow': {
+          '0%, 100%': { 
+            'box-shadow': '0 0 10px hsl(var(--primary) / 0), 0 0 20px hsl(var(--primary) / 0), 0 0 30px hsl(var(--primary) / 0)',
+            'transform': 'scale(1)'
+          },
+          '50%': { 
+            'box-shadow': '0 0 20px hsl(var(--primary) / 0.5), 0 0 30px hsl(var(--primary) / 0.3), 0 0 40px hsl(var(--primary) / 0.2)',
+            'transform': 'scale(1.05)'
+          },
         }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'blink': 'blink 1s step-end infinite',
+        'glow': 'glow 2s ease-in-out infinite',
       },
     },
   },
