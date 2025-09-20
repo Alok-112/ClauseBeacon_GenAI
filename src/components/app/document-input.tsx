@@ -42,7 +42,7 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
                 fileType: file.type,
               });
               toast({
-                title: "Text Extracted",
+                title: "Document Uploaded",
                 description: "The text from your document has been successfully extracted.",
               });
             } catch (error) {
@@ -80,6 +80,10 @@ export function DocumentInput({ onAnalyze, isAnalyzing, documentInfo, onDocument
 
   const handleRemoveDocument = () => {
     onDocumentChange(null);
+    toast({
+        title: "Document Removed",
+        description: "The document has been cleared from the application.",
+    });
   };
   
   const isLoading = isAnalyzing || isExtracting;
