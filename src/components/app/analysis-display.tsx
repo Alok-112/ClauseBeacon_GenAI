@@ -21,7 +21,7 @@ type AnalysisDisplayProps = {
   isDownloading: boolean;
 };
 
-const supportedLanguages = ["Spanish", "French", "German", "Japanese", "Mandarin Chinese", "Italian", "Portuguese", "Hindi", "Bengali", "Telugu", "Marathi", "Tamil", "Urdu"];
+const supportedLanguages = ["Hinglish", "Spanish", "French", "German", "Japanese", "Mandarin Chinese", "Italian", "Portuguese", "Hindi", "Bengali", "Telugu", "Marathi", "Tamil", "Urdu"];
 
 export function AnalysisDisplay({ 
     analysis, 
