@@ -15,7 +15,7 @@ const AnswerDocumentQuestionInputSchema = z.object({
   documentText: z
     .string()
     .describe('The complete text of the legal document.'),
-  question: z.string().describe('The user\'s question about the document.'),
+  question: z.string().describe("The user's question about the document."),
 });
 export type AnswerDocumentQuestionInput = z.infer<
   typeof AnswerDocumentQuestionInputSchema
@@ -24,7 +24,7 @@ export type AnswerDocumentQuestionInput = z.infer<
 const AnswerDocumentQuestionOutputSchema = z.object({
   answer: z
     .string()
-    .describe('The answer to the user\'s question based on the document.'),
+    .describe("The answer to the user's question based on the document."),
 });
 export type AnswerDocumentQuestionOutput = z.infer<
   typeof AnswerDocumentQuestionOutputSchema
@@ -56,7 +56,7 @@ Legal Document:
 ---
 
 User's Question:
-"{{question}}"
+{{question}}
 
 Answer:`,
 });
