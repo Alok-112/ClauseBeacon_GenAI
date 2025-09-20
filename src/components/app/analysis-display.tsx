@@ -57,20 +57,13 @@ export function AnalysisDisplay({
                 {isDownloading ? 'Generating PDF...' : 'Download Report'}
             </Button>
         </div>
-        <Tabs defaultValue="chat" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto sm:h-10">
-                <TabsTrigger value="chat">Ask a Question</TabsTrigger>
+        
+        <Tabs defaultValue="summary" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="summary">Summary</TabsTrigger>
                 <TabsTrigger value="risks">Risk Factors</TabsTrigger>
                 <TabsTrigger value="checklist">Checklist</TabsTrigger>
             </TabsList>
-            <TabsContent value="chat">
-                <ChatTab 
-                    onAskQuestion={onAskQuestion}
-                    chatHistory={chatHistory}
-                    isAsking={isAsking}
-                />
-            </TabsContent>
             <TabsContent value="summary">
                 <SummaryTab summary={analysis.summary} />
             </TabsContent>
@@ -85,6 +78,14 @@ export function AnalysisDisplay({
                 <ChecklistTab checklist={analysis.checklist} />
             </TabsContent>
         </Tabs>
+
+        <div className="mt-4">
+            <ChatTab 
+                onAskQuestion={onAskQuestion}
+                chatHistory={chatHistory}
+                isAsking={isAsking}
+            />
+        </div>
     </div>
   );
 }
