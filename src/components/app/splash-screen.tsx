@@ -18,7 +18,7 @@ export const SplashScreen = () => {
 
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-background fixed inset-0 z-[100]">
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center gap-8">
         <div className="relative flex items-center justify-center">
             <div className="absolute h-32 w-32 animate-pulse rounded-full bg-primary/10"></div>
             <div className="absolute h-48 w-48 animate-pulse rounded-full bg-primary/10 [animation-delay:0.3s]"></div>
