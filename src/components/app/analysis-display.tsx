@@ -10,6 +10,7 @@ import { ChatTab } from './chat-tab';
 
 type AnalysisDisplayProps = {
   analysis: AnalysisResult;
+  originalAnalysis: AnalysisResult;
   onExplainClause: (clause: string) => void;
   onLanguageChange: (language: string) => void;
   currentLanguage: string;
@@ -21,10 +22,11 @@ type AnalysisDisplayProps = {
   isDownloading: boolean;
 };
 
-const supportedLanguages = ["Hinglish", "Spanish", "French", "German", "Japanese", "Mandarin Chinese", "Italian", "Portuguese", "Hindi", "Bengali", "Telugu", "Marathi", "Tamil", "Urdu"];
+const supportedLanguages = ["Hindi", "Hinglish", "Spanish", "French", "German", "Japanese", "Mandarin Chinese", "Italian", "Portuguese", "Bengali", "Telugu", "Marathi", "Tamil", "Urdu"];
 
 export function AnalysisDisplay({ 
     analysis, 
+    originalAnalysis,
     onExplainClause, 
     onLanguageChange, 
     currentLanguage,
@@ -66,7 +68,11 @@ export function AnalysisDisplay({
                 <SummaryTab summary={analysis.summary} />
             </TabsContent>
             <TabsContent value="risks">
-                <RisksTab riskFactors={analysis.riskFactors} onExplainClause={onExplainClause} />
+                <RisksTab 
+                  riskFactors={analysis.riskFactors} 
+                  originalRiskFactors={originalAnalysis.riskFactors}
+                  onExplainClause={onExplainClause} 
+                />
             </TabsContent>
             <TabsContent value="checklist">
                 <ChecklistTab checklist={analysis.checklist} />

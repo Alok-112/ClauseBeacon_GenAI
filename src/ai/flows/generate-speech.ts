@@ -45,8 +45,11 @@ const detectLanguagePrompt = ai.definePrompt(
     {
       name: 'detectLanguagePrompt',
       input: { schema: z.string() },
-      output: { schema: z.object({ lang: z.string().describe("The ISO 639-1 code for the detected language (e.g., 'en', 'hi', 'es'). Default to 'en' if unsure.") }) },
-      prompt: `Detect the primary language of the following text and return its ISO 639-1 code. For Hinglish, use 'hi'.
+      output: { schema: z.object({ lang: z.string().describe("The ISO 639-1 code for the detected language. Use 'en' for English, 'hi' for Hindi, and 'hi' for Hinglish (Hindi + English). Default to 'en' if unsure.") }) },
+      prompt: `Detect the primary language of the following text.
+- If it's English, return "en".
+- If it's pure Hindi, return "hi".
+- If it's a mix of Hindi and English (Hinglish), return "hi".
 
 Text:
 {{input}}`,
@@ -70,7 +73,6 @@ const generateSpeechFlow = ai.defineFlow(
     const lang = output?.lang?.toLowerCase() || 'en';
 
     // 2. Select Voice based on language
-    // Note: These are example voices. Refer to Google's documentation for a full list.
     // 'hi' for Hindi/Hinglish, 'en' for English.
     const voice = lang.startsWith('hi') ? 'hi-IN-Wavenet-D' : 'Algenib';
 

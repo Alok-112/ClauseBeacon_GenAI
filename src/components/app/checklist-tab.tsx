@@ -13,8 +13,13 @@ type ChecklistTabProps = {
 export function ChecklistTab({ checklist }: ChecklistTabProps) {
     const checklistItems = useMemo(() => {
         if (!checklist) return [];
-        return checklist.split('\n').filter(item => item.trim().startsWith('- ') || item.trim().startsWith('* ')).map(item => item.trim().substring(2).trim())
+        // Robustly split by newline and filter for list items
+        return checklist.split(/[\n]+/)
+            .map(item => item.trim())
+            .filter(item => item.startsWith('- ') || item.startsWith('* '))
+            .map(item => item.substring(2).trim());
     }, [checklist]);
+
     const [checkedItems, setCheckedItems] = useState<Record<number, boolean>>({});
 
     const handleCheckChange = (index: number) => {
@@ -50,7 +55,8 @@ export function ChecklistTab({ checklist }: ChecklistTabProps) {
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-8">
               <CheckSquare className="h-12 w-12 mb-4" />
-              <p>No actionable checklist items were generated.</p>
+              <p>No actionable checklist items were generated for the selected language.</p>
+              <p className="text-xs mt-1">Try translating the analysis if you haven't already.</p>
             </div>
           )}
         </ScrollArea>

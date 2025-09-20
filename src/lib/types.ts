@@ -6,7 +6,7 @@ export type AnalysisResult = {
 
 export type FullAnalysisResult = {
   original: AnalysisResult;
-  translated?: {
+  translated: {
     [language: string]: AnalysisResult;
   };
 };

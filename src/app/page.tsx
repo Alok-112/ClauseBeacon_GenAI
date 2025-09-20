@@ -107,12 +107,11 @@ export default function Home() {
   const handleExplainClause = (clause: string) => {
     if (!documentText || !displayAnalysis) return;
 
-    // Use original document text for explanation, but use the clause from the current display language
     setDialogState({ open: true, clause, explanation: null });
     startExplaining(async () => {
       try {
-        // We always want to find the clause in the original document text.
-        // The `clause` argument here might be translated, but the AI should handle it.
+        // IMPORTANT: Always use the original document text and the original (English) clause for explanation
+        // to ensure the AI can find the context.
         const explanation = await explainClauseAction(documentText, clause);
         setDialogState(prev => ({ ...prev, explanation }));
       } catch (error) {
@@ -225,6 +224,7 @@ export default function Home() {
             ) : displayAnalysis ? (
                 <AnalysisDisplay 
                     analysis={displayAnalysis} 
+                    originalAnalysis={analysis.original}
                     onExplainClause={handleExplainClause}
                     onLanguageChange={handleLanguageChange}
                     currentLanguage={currentLang}

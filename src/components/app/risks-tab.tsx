@@ -5,10 +5,11 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 type RisksTabProps = {
   riskFactors: string[];
+  originalRiskFactors: string[];
   onExplainClause: (clause: string) => void;
 };
 
-export function RisksTab({ riskFactors, onExplainClause }: RisksTabProps) {
+export function RisksTab({ riskFactors, originalRiskFactors, onExplainClause }: RisksTabProps) {
   return (
     <Card className="shadow-lg">
       <CardHeader>
@@ -29,7 +30,8 @@ export function RisksTab({ riskFactors, onExplainClause }: RisksTabProps) {
                     <Button
                       variant="link"
                       className="p-0 h-auto mt-2 text-primary"
-                      onClick={() => onExplainClause(risk)}
+                      // Always explain using the original English clause to ensure context is found
+                      onClick={() => onExplainClause(originalRiskFactors[index] || risk)}
                     >
                       <Sparkles className="mr-2 h-4 w-4" />
                       Explain this in simple terms
