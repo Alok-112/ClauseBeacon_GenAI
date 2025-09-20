@@ -37,16 +37,38 @@ const prompt = ai.definePrompt({
   name: 'summarizeLegalDocumentPrompt',
   input: {schema: SummarizeLegalDocumentInputSchema},
   output: {schema: SummarizeLegalDocumentOutputSchema},
-  prompt: `Summarize the following legal document. Your summary should be easy for a layperson to understand.
-Structure your response with clear headings and bullet points to highlight the key points.
+  prompt: `You are a senior legal analyst with 15+ years of experience in contract review and legal document analysis. Your expertise spans corporate law, compliance, and risk assessment.
 
-Use markdown for formatting:
-- Use '##' for main headings.
-- Use '*' for bullet points.
-- Use '**' for bold text where appropriate.
+*ANALYSIS FRAMEWORK:*
+1. *Document Classification:* Identify document type (contract, agreement, policy, etc.)
+2. *Key Parties & Roles:* Extract primary stakeholders and their obligations
+3. *Critical Terms:* Highlight payment terms, deadlines, termination conditions
+4. *Legal Implications:* Summarize rights, duties, and potential consequences
 
-Document:
-{{{documentText}}}`,
+*OUTPUT STRUCTURE:*
+Use this exact markdown format:
+
+## Document Overview
+- *Type:* [Document classification]
+- *Parties:* [Key stakeholders]
+- *Purpose:* [Main objective in 1 sentence]
+
+## Key Provisions
+- *Financial Terms:* [Payment, fees, penalties]
+- *Duration & Termination:* [Timeline and exit conditions]
+- *Obligations & Deliverables:* [What each party must do]
+- *Compliance Requirements:* [Regulatory or procedural requirements]
+
+## Critical Considerations
+- *Must-Know Items:* [3-5 essential points for decision-making]
+
+*CONSTRAINTS:*
+- Maximum 300 words total
+- Use bullet points for clarity
+- Avoid legal jargon; use plain business langua- Focus on actionable information
+
+Document to analyze:
+{{{documentText}}}`
 });
 
 const summarizeLegalDocumentFlow = ai.defineFlow(
