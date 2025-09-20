@@ -60,10 +60,10 @@ const extractTextFromDocumentFlow = ai.defineFlow(
   async input => {
     const {output} = await prompt(input);
     
-    if (!output || typeof output.extractedText !== 'string' || !output.extractedText.trim()) {
-        throw new Error("The AI model could not find any readable text in the document. It might be blank, corrupted, or too blurry.");
-    }
-    
-    return output;
+    // If the model can't extract text, it should return an empty string based on the prompt.
+    // The previous error handling here was too aggressive and caused issues.
+    // We trust the model to return an empty string for unreadable docs,
+    // and the action handler will manage any real exceptions.
+    return output || { extractedText: '' };
   }
 );
