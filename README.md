@@ -50,8 +50,9 @@ ClauseBeacon is built on a foundation of modern, scalable, and powerful technolo
   - **AI Model**: [Google Gemini 2.5 Flash](https://ai.google/gemini/) for analysis, translation, and Q&A.
   - **Server Actions**: Secure and efficient communication between the client and server.
 
-- **Deployment**:
-  - **Hosting**: [Firebase App Hosting](https://firebase.google.com/docs/app-hosting) for robust, scalable, and secure deployment.
+- **Deployment**:  
+  - **Hosting**: [Vercel](https://vercel.com/) for seamless, scalable, and developer-friendly deployment.  
+
 
 ---
 
