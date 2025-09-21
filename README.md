@@ -3,7 +3,6 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
 [![Gemini](https://img.shields.io/badge/Gemini_AI-8E75B9?style=for-the-badge&logo=google&logoColor=white)](https://ai.google/gemini/)
 
 **ClauseBeacon illuminates the complexities of legal documents, transforming dense contracts and agreements into clear, actionable insights.**
